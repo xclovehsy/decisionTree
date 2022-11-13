@@ -13,27 +13,6 @@ import plottree
 import pickle
 
 
-def storeTree(inputTree, filename):
-    """
-    存储决策树
-    :param inputTree: 已经生成的决策树
-    :param filename: 决策树的存储文件名
-    :return:
-    """
-    with open(filename, 'wb') as fw:
-        pickle.dump(inputTree, fw)
-
-
-def grabTree(filename):
-    """
-    读取决策树
-    :param filename: 决策树的存储文件名
-    :return: 决策树字典
-    """
-    fr = open(filename, 'rb')
-    return pickle.load(fr)
-
-
 data_path = r"Dataset/iris_data.xlsx"
 tree_path = r"iris_dt.txt"
 df = pd.read_excel(data_path)
@@ -48,26 +27,40 @@ for i in range(len(feature_name)):
     name2id[feature_name[i]] = i
 
 # 训练集和测试集切分
-x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
 # 训练模型
 dt = DecisionTree.DT()
-# dtree = dt.createDecTree(x_train, y_train, id2name)
-# storeTree(dtree, tree_path)
-dtree = grabTree(tree_path)
-print(dtree)
 
-# 模型准确性评估
+dtree = dt.createDecTree(x_train, y_train, id2name)
+
+# 剪枝前模型准确性评估
 print("剪枝前决策树准确率")
 print(classification_report(y_test, dt.predict(dtree, x_test)))
 # 绘制决策树图像
 plottree.createPlot(dtree)
 
 # 后剪枝
-dt.postPruning(dtree, dtree, x_test, y_test)
+dt.postPruning(dtree, dtree, x_train, y_train)
 
-# 模型准确性评估
+# 剪枝后模型准确性评估
 print("剪枝后决策树准确率")
 print(classification_report(y_test, dt.predict(dtree, x_test)))
 # 绘制决策树图像
 plottree.createPlot(dtree)
+
+# 存储决策树
+with open(tree_path, 'wb') as fw:
+    pickle.dump(dtree, fw)
+
+# dtree = {}
+# # 读取决策树
+# with open(tree_path, 'rb') as fr:
+#     dtree = pickle.load(fr)
+#
+# # 模型准确性评估
+# print("鸢尾花数据集-决策树准确率")
+# print(classification_report(y_test, dt.predict(dtree, x_test)))
+#
+# # 绘制决策树图像
+# plottree.createPlot(dtree)

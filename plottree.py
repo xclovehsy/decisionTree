@@ -77,7 +77,7 @@ def plotNode(nodeTxt, centerPt, parentPt, nodeType):
     '''
     # print(type(nodeTxt))
     if type(nodeTxt).__name__ == "tuple":
-        nodeTxt = f"featureName={nodeTxt[0]}\nfeatureId={nodeTxt[1]}\ndivideValue={nodeTxt[2]}\ngini={nodeTxt[3]}"
+        nodeTxt = f"featureName={nodeTxt[0]}\nfeatureId={nodeTxt[1]}\ndivideValue={nodeTxt[2]}\ngain={nodeTxt[3]}"
 
     createPlot.ax1.annotate(nodeTxt, xy=parentPt,
                             xycoords='axes fraction', xytext=centerPt, textcoords='axes fraction',

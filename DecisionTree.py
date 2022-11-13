@@ -9,7 +9,6 @@ from copy import deepcopy
 
 
 class DT:
-
     def postPruning(self, dtree, subtree, X, y):
         """
         dfs算法对决策树进行后剪枝
@@ -126,11 +125,14 @@ class DT:
         :param y:
         :return:
         """
-
-        # 若当前数据集中只有一种label的样本，则直接返回唯一的label
         labels = list(set(y))
+        # 若当前数据集中只有一种label的样本，则直接返回唯一的label
         if len(labels) == 1:
             return labels[0]
+
+        # 只有一种属性且所有属性值相同
+        if len(X[0]) == 1 and len(list(set(X[:, 0]))) == 1:
+            return self.getMostLabel(y)
 
         # 若当前数据集中无特征，则返回最多的样本label
         if len(X[0]) == 0:
@@ -140,12 +142,13 @@ class DT:
         best_feature, feature_divide_value, gain_feature = self.getBestFeature(X, y)
 
         # 构建当前数据下的决策树
-        key = (id2name[best_feature], best_feature, feature_divide_value, self.calcDataEnt(X, y))
+        key = (id2name[best_feature], best_feature, feature_divide_value, gain_feature)
         deTree = {key: {}}
 
         # 获取大于value以及小于value的子数据集
         sub_X_left, sub_y_left, sub_X_right, sub_y_right = self.spiltDataSetByFeature(X, y, best_feature,
                                                                                       feature_divide_value)
+
         deTree[key]["left"] = self.createDecTree(sub_X_left, sub_y_left, id2name)
         deTree[key]["right"] = self.createDecTree(sub_X_right, sub_y_right, id2name)
 
@@ -166,7 +169,7 @@ class DT:
         most_label = ""
         max_cnt = 0
         for label in num_label.keys():
-            if num_label[label] >= max_cnt:
+            if num_label[label] > max_cnt:
                 max_cnt = num_label[label]
                 most_label = label
 
