@@ -198,12 +198,15 @@ class DT:
         # 计算每个属性的信息增益
         for i in range(len(X[0])):
             # 获取当前属性的取值
-            feature_values = np.sort(np.array(list(set(X[:, i]))))
+            # feature_values = np.sort(np.array(list(set(X[:, i]))))
+            #
+            # # 获取切分的所有值
+            # divide_values = []
+            # for j in range(len(feature_values) - 1):
+            #     divide_values.append((feature_values[j] + feature_values[j + 1]) / 2)
 
-            # 获取切分的所有值
-            divide_values = []
-            for j in range(len(feature_values) - 1):
-                divide_values.append((feature_values[j] + feature_values[j + 1]) / 2)
+            divide_values = np.linspace(np.min(X[:, i]), np.max(X[:, i]), 100)
+
 
             min_cost = sys.maxsize
             feature_divide_value = 0
@@ -220,12 +223,14 @@ class DT:
                     min_cost = cost
                     feature_divide_value = value
 
+            print(f"feature={i}, cost={min_cost}, divide_value={feature_divide_value}")
+
             if min_cost <= min_feature_cost:
                 min_feature_cost = min_cost
                 best_feature = i
                 best_feature_divide_value = feature_divide_value
 
-        # print(f"choose_feature={best_feature}, cost={min_feature_cost}, divide_value={best_feature_divide_value}")
+        print(f"choose_feature={best_feature}, cost={min_feature_cost}, divide_value={best_feature_divide_value}")
 
         return best_feature, best_feature_divide_value, min_feature_cost
 
@@ -280,7 +285,7 @@ class DT:
 
 
 def icecream_classify():
-    data_path = r"Dataset/icecream_data.xlsx"
+    data_path = r"dataset/icecream_data.xlsx"
     tree_path = r"icecream.txt"
     df = pd.read_excel(data_path)
 
@@ -320,7 +325,7 @@ def icecream_classify():
     plottree.createPlot(dtree)
 
 def housing_classify():
-    data_path = r"Dataset/housing_data.xlsx"
+    data_path = r"dataset/housing_data.xlsx"
     tree_path = r"housing_dt.txt"
     df = pd.read_excel(data_path)
 
@@ -343,6 +348,7 @@ def housing_classify():
     dt = DT(len(X[0])*2)
     dtree = dt.createDecTree(x_train, y_train, id2name, 0)
     # print(dtree)
+
 
     print(f"剪枝前模型r2={r2_score(y_test, dt.predict(dtree, x_test))}")
     # plottree.createPlot(dtre e)

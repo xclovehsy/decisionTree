@@ -14,6 +14,10 @@ import pickle
 
 
 class DT:
+
+    def __init__(self, depth):
+        self.depth = depth
+
     def postPruning(self, dtree, subtree, X, y):
         """
         dfs算法对决策树进行后剪枝
@@ -113,7 +117,7 @@ class DT:
         else:
             return self.getPredict(sub_tree["left"], X)
 
-    def createDecTree(self, X, y, id2name):
+    def createDecTree(self, X, y, id2name, depth):
         """
         创建决策树函数
         :param id2name:
@@ -121,6 +125,9 @@ class DT:
         :param y:
         :return:
         """
+        if depth > self.depth:
+            return self.getMostLabel(y)
+
         labels = list(set(y))
         # 若当前数据集中只有一种label的样本，则直接返回唯一的label
         if len(labels) == 1:
@@ -140,8 +147,8 @@ class DT:
         # 获取大于value以及小于value的子数据集
         sub_X_left, sub_y_left, sub_X_right, sub_y_right = self.spiltDataSetByFeature(X, y, best_feature,
                                                                                       feature_divide_value)
-        deTree[key]["left"] = self.createDecTree(sub_X_left, sub_y_left, id2name)
-        deTree[key]["right"] = self.createDecTree(sub_X_right, sub_y_right, id2name)
+        deTree[key]["left"] = self.createDecTree(sub_X_left, sub_y_left, id2name, depth+1)
+        deTree[key]["right"] = self.createDecTree(sub_X_right, sub_y_right, id2name, depth+1)
         return deTree
 
     def getMostLabel(self, labels):
@@ -227,10 +234,12 @@ class DT:
 
         for i in range(len(X)):
             if X[i][feature] >= value:
-                sub_X_right.append(list(np.concatenate([X[i][:feature], X[i][feature + 1:]], axis=0)))
+                sub_X_right.append(X[i])
+                # sub_X_right.append(list(np.concatenate([X[i][:feature], X[i][feature + 1:]], axis=0)))
                 sub_y_right.append(y[i])
             else:
-                sub_X_left.append(list(np.concatenate([X[i][:feature], X[i][feature + 1:]], axis=0)))
+                sub_X_left.append(X[i])
+                # sub_X_left.append(list(np.concatenate([X[i][:feature], X[i][feature + 1:]], axis=0)))
                 sub_y_left.append(y[i])
 
         return np.array(sub_X_left), np.array(sub_y_left), np.array(sub_X_right), np.array(sub_y_right)
@@ -262,8 +271,8 @@ class DT:
 
 
 def iris_classify():
-    data_path = r"Dataset/iris_data.xlsx"
-    tree_path = r"DTstore/iris_dt.txt"
+    data_path = r"dataset/iris_data.xlsx"
+    tree_path = r"dt_store/iris_dt.txt"
     df = pd.read_excel(data_path)
 
     X = pd.DataFrame(df).values[:, :-1]
@@ -279,8 +288,8 @@ def iris_classify():
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
     # 训练模型
-    dt = DT()
-    dtree = dt.createDecTree(x_train, y_train, id2name)
+    dt = DT(len(X[0])*5)
+    dtree = dt.createDecTree(x_train, y_train, id2name, 0)
 
     # 剪枝前模型准确性评估
     print("剪枝前决策树准确率")
@@ -303,8 +312,8 @@ def iris_classify():
 
 
 def wine_classify():
-    data_path = r"Dataset/winequality_data.xlsx"
-    tree_path = r"DTstore/wine_dt.txt"
+    data_path = r"dataset/winequality_data.xlsx"
+    tree_path = r"dt_store/wine_dt.txt"
     df = pd.read_excel(data_path)
 
     X = pd.DataFrame(df).values[:, :-1]
@@ -320,8 +329,8 @@ def wine_classify():
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
     # 训练模型
-    dt = DT()
-    dtree = dt.createDecTree(x_train, y_train, id2name)
+    dt = DT(len(X[0])*3)
+    dtree = dt.createDecTree(x_train, y_train, id2name, 0)
 
     # 模型准确性评估
     print("剪枝前决策树准确率")
@@ -346,5 +355,5 @@ def wine_classify():
 
 
 if __name__ == '__main__':
-    iris_classify()
-    # wine_classify()
+    # iris_classify()
+    wine_classify()

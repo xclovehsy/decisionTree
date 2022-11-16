@@ -18,6 +18,9 @@ y2 = np.array([1,2,3,4,2,3,4,5,6,3,4,2,3,4,2,3,4,5,2])
 
 df = pd.DataFrame(np.array([y, y2]).T).sort_values(0).values
 print(df)
+
+print(np.linspace(2.5, 3.4, 10))
+
 # cost = np.dot(y-np.average(y), (y-np.average(y)).T)
 # print(cost)
 
